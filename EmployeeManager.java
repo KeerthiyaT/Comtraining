@@ -22,7 +22,9 @@ public class EmployeeManager {
             System.out.println("1. Add employee");
             System.out.println("2. Display all employees");
             System.out.println("3. Search employee by ID");
-            System.out.println("4. Exit");
+            System.out.println("4. Update employee details");
+            System.out.println("5. Delete employee");
+            System.out.println("6. Exit");
             int choice = readInt("Choose an option: ");
 
             switch (choice) {
@@ -36,11 +38,17 @@ public class EmployeeManager {
                     searchEmployee();
                     break;
                 case 4:
+                    updateEmployee();
+                    break;
+                case 5:
+                    deleteEmployee();
+                    break;
+                case 6:
                     running = false;
                     System.out.println("Goodbye!");
                     break;
                 default:
-                    System.out.println("Invalid option. Please choose 1–4.");
+                    System.out.println("Invalid option. Please choose 1–6.");
             }
         }
         scanner.close();
@@ -69,8 +77,7 @@ public class EmployeeManager {
         System.out.printf("\n%-12s %-24s %-20s %12s%n", "Employee ID", "Name", "Department", "Salary");
         System.out.println("--------------------------------------------------------------------------");
         for (Employee employee : employees) {
-            System.out.printf("%-12d %-24s %-20s %12.2f%n",
-                    employee.getId(), employee.getName(), employee.getDepartment(), employee.getSalary());
+            printEmployeeRow(employee);
         }
     }
 
@@ -81,12 +88,35 @@ public class EmployeeManager {
             System.out.println("No employee found with ID " + id + ".");
             return;
         }
+        printEmployeeDetails(employee);
+    }
 
-        System.out.println("\nEmployee found:");
-        System.out.println("ID:         " + employee.getId());
-        System.out.println("Name:       " + employee.getName());
-        System.out.println("Department: " + employee.getDepartment());
-        System.out.printf("Salary:     %.2f%n", employee.getSalary());
+    private void updateEmployee() {
+        int id = readInt("Enter employee ID to update: ");
+        Employee employee = findEmployee(id);
+        if (employee == null) {
+            System.out.println("No employee found with ID " + id + ".");
+            return;
+        }
+
+        System.out.println("Enter the updated details:");
+        String name = readNonEmptyLine("Name: ");
+        String department = readNonEmptyLine("Department: ");
+        double salary = readSalary("Salary: ");
+        employee.update(name, department, salary);
+        System.out.println("Employee details updated successfully.");
+    }
+
+    private void deleteEmployee() {
+        int id = readInt("Enter employee ID to delete: ");
+        Employee employee = findEmployee(id);
+        if (employee == null) {
+            System.out.println("No employee found with ID " + id + ".");
+            return;
+        }
+
+        employees.remove(employee);
+        System.out.println("Employee deleted successfully.");
     }
 
     private Employee findEmployee(int id) {
@@ -96,6 +126,19 @@ public class EmployeeManager {
             }
         }
         return null;
+    }
+
+    private void printEmployeeRow(Employee employee) {
+        System.out.printf("%-12d %-24s %-20s %12.2f%n",
+                employee.getId(), employee.getName(), employee.getDepartment(), employee.getSalary());
+    }
+
+    private void printEmployeeDetails(Employee employee) {
+        System.out.println("\nEmployee details:");
+        System.out.println("ID:         " + employee.getId());
+        System.out.println("Name:       " + employee.getName());
+        System.out.println("Department: " + employee.getDepartment());
+        System.out.printf("Salary:     %.2f%n", employee.getSalary());
     }
 
     private int readInt(String prompt) {
@@ -139,9 +182,9 @@ public class EmployeeManager {
 
     private static class Employee {
         private final int id;
-        private final String name;
-        private final String department;
-        private final double salary;
+        private String name;
+        private String department;
+        private double salary;
 
         private Employee(int id, String name, String department, double salary) {
             this.id = id;
@@ -164,6 +207,12 @@ public class EmployeeManager {
 
         private double getSalary() {
             return salary;
+        }
+
+        private void update(String name, String department, double salary) {
+            this.name = name;
+            this.department = department;
+            this.salary = salary;
         }
     }
 }
